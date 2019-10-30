@@ -3,7 +3,8 @@ import os
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators import (StageToRedshiftOperator, LoadFactOperator,
-                                LoadDimensionOperator, DataQualityOperator)
+                                LoadDimensionOperator, DataQualityOperator,
+                                PostgresOperator)
 from helpers import SqlQueries
 
 # AWS_KEY = os.environ.get('AWS_KEY')
@@ -27,13 +28,33 @@ dag = DAG('udac_example_dag',
 
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
+# create_tables.sql should be in dags folder
+create_tables = PostgresOperator(
+    task_id="create_tables",
+    dag=dag,
+    postgres_conn_id="redshift",
+    sql="create_tables.sql"
+)
+
 stage_events_to_redshift = StageToRedshiftOperator(
     task_id='Stage_events',
+    redshift_conn_id='redshift',
+    aws_credentials_id='aws_credentials',
+    table='staging_events',
+    s3_bucket='udacity-dend',
+    s3_key='log_data/2018/11/2018-11-01-events.json',
+    region='us-west-2',
     dag=dag
 )
 
 stage_songs_to_redshift = StageToRedshiftOperator(
     task_id='Stage_songs',
+    redshift_conn_id='redshift',
+    aws_credentials_id='aws_credentials',
+    table='staging_songs',
+    s3_bucket='udacity-dend',
+    s3_key='song_data/A/A/A/TRAAAAK128F9318786.json',
+    region='us-west-2',
     dag=dag
 )
 
@@ -69,8 +90,9 @@ run_quality_checks = DataQualityOperator(
 
 end_operator = DummyOperator(task_id='Stop_execution',  dag=dag)
 
-start_operator >> stage_events_to_redshift >> load_songplays_table
-start_operator >> stage_songs_to_redshift >> load_songplays_table
+start_operator >> create_tables
+create_tables >> stage_events_to_redshift >> load_songplays_table
+create_tables >> stage_songs_to_redshift >> load_songplays_table
 load_songplays_table >> load_user_dimension_table >> run_quality_checks
 load_songplays_table >> load_song_dimension_table >> run_quality_checks
 load_songplays_table >> load_artist_dimension_table >> run_quality_checks
