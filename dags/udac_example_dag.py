@@ -92,6 +92,8 @@ load_artist_dimension_table = LoadDimensionOperator(
     aws_credentials_id='aws_credentials',
     table='artists',
     select_sql=SqlQueries.artist_table_insert,
+    append_insert=True,
+    primary_key="artistid",
     dag=dag
 )
 
