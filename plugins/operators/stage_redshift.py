@@ -4,9 +4,21 @@ from airflow.utils.decorators import apply_defaults
 from airflow.contrib.hooks.aws_hook import AwsHook
 
 class StageToRedshiftOperator(BaseOperator):
+    """
+    Copies JSON data from S3 to staging tables in Redshift data warehouse
+    
+    :param redshift_conn_id: Redshift connection ID
+    :param aws_credentials_id: AWS credentials ID
+    :param table: Target staging table in Redshift to copy data into
+    :param s3_bucket: S3 bucket where JSON data resides
+    :param s3_key: Path in S3 bucket where JSON data files reside
+    :param copy_json_option: Either a JSONPaths file or 'auto', mapping the data
+        elements in the JSON source data to the columns in the target table
+    :param region: AWS Region where the source data is located
+    """
+    
     ui_color = '#358140'
     
-    # Have to create table if not exists
     copy_sql = """
         COPY {}
         FROM '{}'
@@ -18,9 +30,6 @@ class StageToRedshiftOperator(BaseOperator):
     
     @apply_defaults
     def __init__(self,
-                 # Define your operators params (with defaults) here
-                 # Example:
-                 # redshift_conn_id=your-connection-name
                  redshift_conn_id="",
                  aws_credentials_id="",
                  table="",
@@ -31,9 +40,6 @@ class StageToRedshiftOperator(BaseOperator):
                  *args, **kwargs):
         
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
-        # Map params here
-        # Example:
-        # self.conn_id = conn_id
         self.redshift_conn_id = redshift_conn_id
         self.aws_credentials_id = aws_credentials_id
         self.table = table

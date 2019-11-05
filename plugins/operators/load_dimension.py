@@ -3,6 +3,18 @@ from airflow.models import BaseOperator
 from airflow.utils.decorators import apply_defaults
 
 class LoadDimensionOperator(BaseOperator):
+    """
+    Loads dimension table in Redshift from data in staging table(s)
+    
+    :param redshift_conn_id: Redshift connection ID
+    :param table: Target table in Redshift to load
+    :param select_sql: SQL query for getting data to load into target table
+    :param append_insert: Whether the append-insert or truncate-insert method
+        of loading should be used
+    :param primary key: When using the append-insert method, the column to check
+        if the row already exists in the target table. If there is a match, the
+        row in the target table will then be updated
+    """
     
     ui_color = '#80BD9E'
     

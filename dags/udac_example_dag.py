@@ -7,9 +7,6 @@ from airflow.operators import (StageToRedshiftOperator, LoadFactOperator,
                                 PostgresOperator)
 from helpers import SqlQueries
 
-# AWS_KEY = os.environ.get('AWS_KEY')
-# AWS_SECRET = os.environ.get('AWS_SECRET')
-
 default_args = {
     'owner': 'udacity',
     'start_date': datetime(2019, 1, 12),
@@ -29,7 +26,6 @@ dag = DAG('udac_example_dag',
 
 start_operator = DummyOperator(task_id='Begin_execution',  dag=dag)
 
-# create_tables.sql should be in dags folder
 create_tables = PostgresOperator(
     task_id="create_tables",
     dag=dag,
