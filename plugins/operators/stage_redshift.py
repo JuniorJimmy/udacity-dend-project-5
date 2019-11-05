@@ -43,7 +43,7 @@ class StageToRedshiftOperator(BaseOperator):
         self.region = region
     
     def execute(self, context):
-        #self.log.info('StageToRedshiftOperator not implemented yet')
+        self.log.info("Getting credentials")
         aws_hook = AwsHook(self.aws_credentials_id)
         credentials = aws_hook.get_credentials()
         redshift = PostgresHook(postgres_conn_id=self.redshift_conn_id)
