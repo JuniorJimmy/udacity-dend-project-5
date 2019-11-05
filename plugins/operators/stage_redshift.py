@@ -13,7 +13,7 @@ class StageToRedshiftOperator(BaseOperator):
         ACCESS_KEY_ID '{}'
         SECRET_ACCESS_KEY '{}'
         REGION AS '{}'
-        FORMAT as json 'auto'
+        FORMAT as json '{}'
     """
     
     @apply_defaults
@@ -26,6 +26,7 @@ class StageToRedshiftOperator(BaseOperator):
                  table="",
                  s3_bucket="",
                  s3_key="",
+                 copy_json_option="auto",
                  region="",
                  *args, **kwargs):
         
@@ -38,6 +39,7 @@ class StageToRedshiftOperator(BaseOperator):
         self.table = table
         self.s3_bucket = s3_bucket
         self.s3_key = s3_key
+        self.copy_json_option = copy_json_option
         self.region = region
     
     def execute(self, context):
@@ -57,6 +59,7 @@ class StageToRedshiftOperator(BaseOperator):
             s3_path,
             credentials.access_key,
             credentials.secret_key,
-            self.region
+            self.region,
+            self.copy_json_option
         )
         redshift.run(formatted_sql)
