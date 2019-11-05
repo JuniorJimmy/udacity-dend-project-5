@@ -64,7 +64,6 @@ stage_songs_to_redshift = StageToRedshiftOperator(
 load_songplays_table = LoadFactOperator(
     task_id='Load_songplays_fact_table',
     redshift_conn_id='redshift',
-    aws_credentials_id='aws_credentials',
     table='songplays',
     select_sql=SqlQueries.songplay_table_insert,
     dag=dag
